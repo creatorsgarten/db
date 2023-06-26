@@ -2,12 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>SSO dance</title>
+    <title>SSO dance (2nd movement)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
     <div id="status">Loading…</div>
     <script>
+      const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
       const queryParams = new URLSearchParams(location.search);
       function setStatus(text) {
         document.getElementById("status").innerText = text;
@@ -15,13 +16,15 @@
       async function getCredentials() {
         const nocogarten =
           queryParams.get("nocogarten") || "https://nocogarten.vercel.app";
+        const idToken = hashParams.get("id_token")
+        location.replace('#_=_');
         const response = await fetch(nocogarten + '/api/auth/callback?response_mode=json', {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            id_token: queryParams.get("id_token"),
+            id_token: idToken,
           }),
         });
         if (!response.ok) {

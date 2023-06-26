@@ -2,46 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>SSO dance</title>
+    <title>SSO dance (1st movement)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body>
     <div id="status">Loading…</div>
     <script>
       function setStatus(text) {
-        document.getElementById('status').innerText = text
+        document.getElementById("status").innerText = text;
       }
-      async function main() {
-        try {
-          setStatus('Signing in…')
-          const credentials = JSON.parse(new URLSearchParams(location.hash.replace(/^#/, '')).get('credentials'))
-          location.replace('#_=_')
-          const response = await fetch('/api/v1/auth/user/signin', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Xc-Gui': 'true',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
-          })
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status} ${response.statusText}`)
-          }
-          const data = await response.json()
-          if (!data.token) {
-            throw new Error('No token in response')
-          }
-          setStatus('Redirecting…')
-          location.replace('/dashboard/')
-        } catch (error) {
-          setStatus(`Unable to sign in: ${error.message}`)
+      try {
+        const queryParams = new URLSearchParams(location.search);
+        const nocogarten =
+          queryParams.get("nocogarten") || "";
+        const callback = new URL('/sso/callback.html', location.href);
+        if (nocogarten) {
+          callback.searchParams.set("nocogarten", nocogarten);
         }
+        const target = new URL("https://creatorsgarten.org/auth/authorize");
+        target.searchParams.set("client_id", "https://db.creatorsgarten.org");
+        target.searchParams.set("response_type", "id_token");
+        target.searchParams.set("scope", "openid email");
+        target.searchParams.set("redirect_uri", callback);
+        target.searchParams.set("response_mode", "hash");
+        location.replace(target);
+      } catch (error) {
+        setStatus(`Unable to sign in: ${error}`);
+        throw error
       }
-      main()
     </script>
   </body>
 </html>
