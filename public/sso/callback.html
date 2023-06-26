@@ -35,8 +35,9 @@
       }
       async function main() {
         try {
-          setStatus("Signing in…");
+          setStatus("Verifying credentials…");
           const credentials = await getCredentials(queryParams.get("id_token"));
+          setStatus("Signing in to NocoDB…");
           const response = await fetch("/api/v1/auth/user/signin", {
             method: "POST",
             headers: {
